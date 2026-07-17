@@ -20,37 +20,43 @@ public partial struct PlayerSpawnSystem : ISystem
         PlayerSpawner spawner = SystemAPI.GetSingleton<PlayerSpawner>();
         PlayerSlotCounter counter = SystemAPI.GetSingleton<PlayerSlotCounter>();
 
-        foreach (var (networkId, connectionEntity) 
+        foreach (var (networkId, connectionEntity)
                  in SystemAPI.Query<RefRO<NetworkId>>()
                  .WithAll<NetworkStreamInGame>()
                  .WithNone<PlayerSpawned>()
                  .WithEntityAccess())
         {
-            // Assign unique slot
+            // Assign unique player slot
             int slot = counter.NextSlot;
             counter.NextSlot++;
 
-            ecb.AddComponent(connectionEntity, new PlayerSlot
-            {
-                Value = slot
-            });
 
-            // Choose player prefab
+            // Choose prefab based on slot
             Entity prefabToSpawn = slot == 0
                 ? spawner.PlayerPrefabRed
                 : spawner.PlayerPrefabBlue;
 
+
             Entity playerEntity = ecb.Instantiate(prefabToSpawn);
 
+
+            // Add gameplay components to the PLAYER entity
             ecb.AddComponent<PlayerTag>(playerEntity);
 
-            // Different spawn positions per slot
+            ecb.AddComponent(playerEntity, new PlayerSlot
+            {
+                Value = slot
+            });
+
+
+            // Spawn position
             float xPosition = slot == 0 ? -2f : 2f;
 
             ecb.SetComponent(playerEntity,
                 LocalTransform.FromPosition(
                     new float3(xPosition, 2f, 0f)
                 ));
+
 
             // Give ownership to this connection
             ecb.SetComponent(playerEntity,
@@ -59,6 +65,7 @@ public partial struct PlayerSpawnSystem : ISystem
                     NetworkId = networkId.ValueRO.Value
                 });
 
+
             // Link player to connection
             ecb.AppendToBuffer(connectionEntity,
                 new LinkedEntityGroup
@@ -66,11 +73,15 @@ public partial struct PlayerSpawnSystem : ISystem
                     Value = playerEntity
                 });
 
+
+            // Mark connection as already spawned
             ecb.AddComponent<PlayerSpawned>(connectionEntity);
         }
 
-        // Save updated slot counter once
+
+        // Save updated slot counter
         SystemAPI.SetSingleton(counter);
+
 
         ecb.Playback(state.EntityManager);
         ecb.Dispose();
