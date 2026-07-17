@@ -3,19 +3,18 @@ using UnityEngine;
 
 public class PlayerSpawnerAuthoring : MonoBehaviour
 {
-    [SerializeField] private GameObject playerPrefab;
+    [SerializeField] private GameObject playerPrefabRed;
+    [SerializeField] private GameObject playerPrefabBlue;
 
-    private class Baker : Baker<PlayerSpawnerAuthoring>
+    class Baker : Baker<PlayerSpawnerAuthoring>
     {
         public override void Bake(PlayerSpawnerAuthoring authoring)
         {
             Entity entity = GetEntity(TransformUsageFlags.None);
-
             AddComponent(entity, new PlayerSpawner
             {
-                PlayerPrefab = GetEntity(
-                    authoring.playerPrefab,
-                    TransformUsageFlags.Dynamic)
+                PlayerPrefabRed = GetEntity(authoring.playerPrefabRed, TransformUsageFlags.Dynamic),
+                PlayerPrefabBlue = GetEntity(authoring.playerPrefabBlue, TransformUsageFlags.Dynamic)
             });
         }
     }
