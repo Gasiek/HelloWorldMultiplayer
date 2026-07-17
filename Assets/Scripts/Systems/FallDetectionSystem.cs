@@ -8,14 +8,14 @@ public partial struct FallDetectionSystem : ISystem
 {
     public void OnUpdate(ref SystemState state)
     {
-        if (!SystemAPI.TryGetSingletonEntity<PlayerSpawner>(
+        if (!SystemAPI.TryGetSingletonEntity<GameState>(
                 out Entity gameStateEntity))
             return;
 
 
         DynamicBuffer<FallEventBufferElement> scoreBuffer =
             SystemAPI.GetBuffer<FallEventBufferElement>(gameStateEntity);
-
+        
 
         foreach (var (transform, playerSlot, velocity)
                  in SystemAPI.Query<

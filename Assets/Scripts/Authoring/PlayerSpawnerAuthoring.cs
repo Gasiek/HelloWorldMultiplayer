@@ -16,7 +16,6 @@ public class PlayerSpawnerAuthoring : MonoBehaviour
                 PlayerPrefabRed = GetEntity(authoring.playerPrefabRed, TransformUsageFlags.Dynamic),
                 PlayerPrefabBlue = GetEntity(authoring.playerPrefabBlue, TransformUsageFlags.Dynamic)
             });
-            AddBuffer<FallEventBufferElement>(entity);
         }
     }
 }
